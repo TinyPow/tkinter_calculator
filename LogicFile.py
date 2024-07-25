@@ -357,3 +357,27 @@ class CalculatorLogic:
         self.sign[1] = ''
         self.input_list = [[],'',[]]
         self.input_list[0].append(f'{result}')
+
+class ConverterLogic:
+    def __init__(self, window):
+        self.window = window
+        self.currency_list = [
+            'USA - Dollar', 
+            'Europe - Euro', 
+            'Japan - Yen', 
+            'UK - Sterling', 
+            'China - Renminbi', 
+            'Australia - Dollar',
+            'Canada - Dollar',
+            'Switzerland - Franc',
+            'Hong Kong - Dollar',
+            'Singapore - Dollar',
+            'Sweden - Corona',
+            'South Korea - Won',
+            'Norway - Krone',
+            'New Zealand - Dollar',
+            'India - Rupee',
+            'Mexico - Peso',
+            'Taiwan - Dollar',
+            'South Africa - Rand',
+            'Brazil - Real']

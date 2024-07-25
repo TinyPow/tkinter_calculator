@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from MainCalculator import CalculatorFrame
+from CurrencyConverter import ConverterFrame
 
 # APP CLASS
 class App(ctk.CTk):
@@ -9,8 +10,9 @@ class App(ctk.CTk):
         self.geometry('500x700')
         self.title('Calculator')
         self.iconbitmap('Calculator.ico')
- 
-        self.calculator_frame = CalculatorFrame(self)
+
+        self.converter_frame = ConverterFrame(self)
+        #self.calculator_frame = CalculatorFrame(self)
         self.side_bar = SideBar(self)   
 
         self.mainloop()
@@ -60,9 +62,32 @@ class SideBar(ctk.CTkFrame):
             fg_color= 'transparent',
             text= "Calculator", 
             hover_color= '#424242',
+            anchor= 'w',
             height = 50, 
             font= ('Arial', 22))
-        self.calculator_button.place(y = 70,relx = 0.5,relwidth = 1, anchor = 'center')
+        
+        self.currency_button = ctk.CTkButton(
+            self,
+            text_color = 'white',
+            fg_color= 'transparent',
+            text= "Currency", 
+            hover_color= '#424242',
+            anchor= 'w',
+            height = 50, 
+            font= ('Arial', 22))
+        
+        self.converter_label = ctk.CTkLabel(
+            self,
+            text_color= '#a6a6a6',
+            text = 'Converters',
+            fg_color= 'transparent',
+            height= 40,
+            anchor= 'w',
+            font= ('Arial', 18))
+        
+        self.calculator_button.place(y = 70,relx = 0.07,relwidth = 0.86, anchor = 'w')
+        self.converter_label.place(y = 115, relx = 0.05, relwidth = 1, anchor = 'w')
+        self.currency_button.place(y = 160, relx = 0.07, relwidth = 0.86, anchor = 'w')
         
         self.PlaceButton()
     
