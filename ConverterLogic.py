@@ -1,26 +1,49 @@
+import requests
+import yaml
+
 class ConverterLogic:
     def __init__(self, frame):
         self.frame = frame
-        self.currency = {
-            'USA - Dollar' : 1, 
-            'Europe - Euro' : 0.92, 
-            'Japan - Yen' : 157.54, 
-            'UK - Pound' : 0.77, 
-            'China - Renminbi' : 7.26, 
-            'Australia - Dollar' : 1.49,
-            'Canada - Dollar' : 1.37,
-            'Switzerland - Franc' : 0.88,
-            'Hong Kong - Dollar' : 7.81,
-            'Singapore - Dollar' : 1.34,
-            'Sweden - Corona' : 10.68,
-            'South Korea - Won' : 1.39,
-            'Norway - Krone' : 10.92,
-            'New Zealand - Dollar' : 1.66,
-            'India - Rupee' : 83.72,
-            'Mexico - Peso' : 18.05,
-            'Taiwan - Dollar' : 32.82,
-            'South Africa - Rand' : 18.28,
-            'Brazil - Real' : 5.60 }
+        self.currency = dict()
+
+        try:
+            with open('api_key.yaml') as api_key_file:
+                api_key_yaml = yaml.safe_load(api_key_file)
+                api_key = api_key_yaml['api_key']
+        except FileNotFoundError:
+            print('NO api_key.yaml FILE FOUND')
+        except KeyError:
+            print('NO api_key VALUE IN YAML FILE')
+
+        api_url = f"https://api.currencybeacon.com/v1/latest?api_key={api_key}&base=USD"
+        response = requests.get(api_url)
+        values_raw = response.json()['response']['rates']
+
+        self.currency_symble = {
+            'USA - Dollar' : 'USD', 
+            'Europe - Euro' : 'EUR', 
+            'Japan - Yen' : 'JPY', 
+            'UK - Pound' : 'GBP', 
+            'China - Renminbi' : 'CNY', 
+            'Australia - Dollar' : 'AUD',
+            'Canada - Dollar' : 'CAD',
+            'Switzerland - Franc' : 'CHF',
+            'Hong Kong - Dollar' : 'HKD',
+            'Singapore - Dollar' : 'SGD',
+            'Sweden - Corona' : 'SEK',
+            'South Korea - Won' : 'KRW',
+            'Norway - Krone' : 'NOK',
+            'New Zealand - Dollar' : 'NZD',
+            'India - Rupee' : 'INR',
+            'Mexico - Peso' : 'MXN',
+            'Taiwan - Dollar' : 'TWD',
+            'South Africa - Rand' : 'ZAR',
+            'Brazil - Real' : 'BRL' }
+        
+        for key,element in self.currency_symble.items():
+            self.currency.update({key:values_raw[element]})
+
+        print(self.currency)
 
         self.currency_names = []
 
