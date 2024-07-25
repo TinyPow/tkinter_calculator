@@ -45,18 +45,29 @@ class SideFrame(ctk.CTkTabview):
     def __init__(self,parent,logic):
         super().__init__(
             parent, 
+            fg_color= '#2E2E2E',
             width = 280, 
             segmented_button_selected_hover_color='#313131', 
             segmented_button_unselected_hover_color='#313131',
             segmented_button_selected_color='#313131',
             anchor = 'w')
         
-        self.button_list = []
-        self.logic = logic
         self.tab_history = self.add('History')
         self.tab_memory = self.add('Memory')
+
+        self.scrollable_frame = ScrollableFrame(self.tab_history, logic)
+        self.scrollable_frame.pack(expand = True, fill = 'both')
+
+class ScrollableFrame(ctk.CTkScrollableFrame):
+    def __init__(self, parent, logic):
+        super().__init__(parent)
+
+        self.parent = parent
+        self.button_list = []
+        self.logic = logic
+
         self.first = True
-        self.base_label = ctk.CTkLabel(self.tab_history, text = 'No history yet', font = ('Arial',25))
+        self.base_label = ctk.CTkLabel(self, text = 'No history yet', font = ('Arial',25))
         self.base_label.pack(pady = 20)
 
     def DeleteHistory(self):
@@ -64,15 +75,16 @@ class SideFrame(ctk.CTkTabview):
             button.pack_forget()
             button.destroy()
         self.first = True
-        self.base_label = ctk.CTkLabel(self.tab_history, text = 'No history yet', font = ('Arial',25))
+        self.base_label = ctk.CTkLabel(self, text = 'No history yet', font = ('Arial',25))
         self.base_label.pack(pady = 20)
+        self.delete_button.place_forget()
 
     def AddHistory(self, result, top):
         if self.first:
             self.base_label.pack_forget()
             self.first = False
             self.delete_button = ctk.CTkButton(
-                self,
+                self.parent,
                 text = 'X',
                 font = ('Arial', 20),
                 fg_color= '#424242',
@@ -82,10 +94,10 @@ class SideFrame(ctk.CTkTabview):
                 height= 50, 
                 command = self.DeleteHistory)
         
-        self.delete_button.place( relx= 1, rely = 1,x= -5, y = -5, anchor = 'se')
+        self.delete_button.place( relx= 1, rely = 1,x= -20, y = -10, anchor = 'se')
 
-        self.button_list.append(HistoryButton(self.tab_history,result,top,self.logic))
-        self.button_list[len(self.button_list) - 1].pack(fill = 'x')
+        self.button_list.append(HistoryButton(self,result,top,self.logic))
+        self.button_list[len(self.button_list) - 1].pack(fill = 'x',side = 'bottom')
 
 class HistoryButton(ctk.CTkButton):
     def __init__(self,parent,result,top,logic):
@@ -123,7 +135,6 @@ class HistoryButton(ctk.CTkButton):
                 line = word
         lines.append(line)
         return '\n'.join(lines)
-
 
 class MainFrame(ctk.CTkFrame):
     def __init__(self,parent,window,logic, result_variable, upper_variable):

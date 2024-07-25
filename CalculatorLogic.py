@@ -130,9 +130,9 @@ class CalculatorLogic:
             self.display = False
             if self.window.result_variable.get() != 'ERROR':
                 if self.history_top == '':
-                    self.window.side_frame.AddHistory(self.window.result_variable.get(),self.upper.get())
+                    self.window.side_frame.scrollable_frame.AddHistory(self.window.result_variable.get(),self.upper.get())
                 else:
-                    self.window.side_frame.AddHistory(self.window.result_variable.get(), self.history_top)
+                    self.window.side_frame.scrollable_frame.AddHistory(self.window.result_variable.get(), self.history_top)
 
             self.history_top = ''
 
