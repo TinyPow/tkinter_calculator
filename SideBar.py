@@ -79,19 +79,18 @@ class SideBar(ctk.CTkFrame):
         elif name == 'currency':
             self.parent.frame.ConverterSwitch()
 
-        self.after(170,self.animate_backwards) # DELAY NECESSARY IF NOT GRAPHIC GLITCH
+        self.after(120,self.animate_backwards) # DELAY NECESSARY IF NOT GRAPHIC GLITCH
 
     def Animate(self):
         if self.is_animating == False:
             if self.in_start_pos:
-                self.SideButton.place_forget()
                 self.animate_forward()
             else:
-                self.SideButton.place_forget()
                 self.animate_backwards()
             self.is_animating = True
 
     def animate_forward(self):
+        self.SideButton.place_forget()
         if self.pos < self.end_pos:
             if self.pos + 20 > self.end_pos:
                 self.pos = self.end_pos
@@ -99,7 +98,7 @@ class SideBar(ctk.CTkFrame):
                 self.pos += 20
             self.place(x = self.pos, rely= 0, relheight = 1,anchor = 'nw')
             self.front_button.place(x = 10,y= 10, anchor = 'nw')
-            self.after(10, self.animate_forward)
+            self.after(20, self.animate_forward)
         else:
             self.in_start_pos = False
             self.is_animating = False
@@ -107,6 +106,7 @@ class SideBar(ctk.CTkFrame):
             self.PlaceButton()
 
     def animate_backwards(self):
+        self.SideButton.place_forget()
         if self.pos > self.start_pos:
             if self.pos - 20 < self.start_pos:
                 self.pos = self.start_pos
@@ -114,7 +114,7 @@ class SideBar(ctk.CTkFrame):
                 self.pos -= 20
             self.place(x = self.pos, rely= 0, relheight = 1,anchor = 'nw')
             self.front_button.place(x = 10,y= 10, anchor = 'nw')
-            self.after(10, self.animate_backwards)    
+            self.after(20, self.animate_backwards)    
         else:
             self.in_start_pos = True
             self.is_animating = False  
