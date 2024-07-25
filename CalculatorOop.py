@@ -11,6 +11,7 @@ class App(ctk.CTk):
         self.geometry('500x700')
         self.title('Calculator')
         self.iconbitmap('Calculator.ico')
+        self.minsize(width= 250, height= 400)
 
         self.frame = Frame(self)   
         self.side_bar = SideBar(self)

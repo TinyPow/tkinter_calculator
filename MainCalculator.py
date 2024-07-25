@@ -5,19 +5,55 @@ from CalculatorLogic import CalculatorLogic
 class CalculatorFrame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
-
+        
+        self.size = 0
         self.result_variable = ctk.StringVar(value = '0')  # REFERENCED IN LOGIC 
         self.upper_varaible = ctk.StringVar()              # REFERENCED IN LOGIC 
 
         self.logic = CalculatorLogic(self)
 
-        self.top_frame = DisplayFrame(self,parent, self.result_variable,self.upper_varaible)
-        self.buttons_frame = ButtonsFrame(self,self.logic)
+        self.main_frame = MainFrame(self,parent, self.logic, self.result_variable, self.upper_varaible)
+        self.main_frame.pack(expand = True, fill = 'both')
+
+        self.bind('<Configure>', self.Check_size)
+                
+        self.pack(expand = True, fill = 'both')
+
+    def Check_size(self, event):
+        if event.width > 560:
+            if self.size == 0:
+                self.Expanded_config()
+        else:
+            if self.size == 1:
+                self.Base_config()
+    
+    def Base_config(self):
+        self.main_frame.pack_forget()
+        self.side_frame.pack_forget()
+        self.main_frame.pack(expand = True, fill = 'both')
+        self.size = 0
+
+    def Expanded_config(self):
+        self.main_frame.pack_forget()
+        self.side_frame = SideFrame(self,self.logic)
+        self.main_frame.pack(side = 'left',expand = True, fill = 'both')
+        self.side_frame.pack(side = 'left',expand = True, fill = 'both')
+        self.size = 1
+
+class SideFrame(ctk.CTkFrame):
+    def __init__(self,parent,logic):
+        super().__init__(parent)
+        ctk.CTkLabel(self,text = 'PROVA', font = ('Arial', 50)).pack(expand = True, fill = 'both')
+
+class MainFrame(ctk.CTkFrame):
+    def __init__(self,parent,window,logic, result_variable, upper_variable):
+        super().__init__(parent)
+
+        self.top_frame = DisplayFrame(self,window, result_variable,upper_variable)
+        self.buttons_frame = ButtonsFrame(self,logic)
 
         self.buttons_frame.place(relx = 0,rely= 0.3, relwidth = 1,relheight = 0.7)
         self.top_frame.place(relx = 0,rely= 0, relwidth = 1,relheight = 0.3)
-
-        self.pack(expand = True, fill = 'both')
 
 class TopFrame(ctk.CTkFrame):
     def __init__(self, parent):
