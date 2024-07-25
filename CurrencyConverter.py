@@ -28,12 +28,14 @@ class DisplayFrame(ctk.CTkFrame):
         self.top_frame = TopFrame(self)
 
         self.top = ctk.CTkLabel(self, textvariable=top_variable,font=('Arial', 40), anchor='w')
-        self.combo_top = ctk.CTkComboBox(self, values=currency_list , width = 200,variable= top_selected)
+        self.combo_top = ctk.CTkComboBox(self, values=currency_list , width = 200,variable= top_selected, state = 'readonly')
 
         self.bottom = ctk.CTkLabel(self,textvariable=bottom_variable, font=('Arial', 40), anchor='w')
-        self.combo_bottom = ctk.CTkComboBox(self, values=currency_list, width = 200, variable= bottom_selected)
-        
+        self.combo_bottom = ctk.CTkComboBox(self, values=currency_list, width = 200, variable= bottom_selected, state = 'readonly')
         self.top_frame = TopFrame(self)
+
+        self.combo_top._canvas.bind('<Button-1>',lambda event: self.after(2,parent.logic.Update))
+        self.combo_bottom._canvas.bind('<Button-1>',lambda event:self.after(2,parent.logic.Update))
 
         self.top_frame.place(relx = 1, rely= 0, relwidth = 1, relheight = 0.125, anchor = 'ne')
 

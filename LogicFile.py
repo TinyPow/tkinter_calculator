@@ -362,7 +362,7 @@ class ConverterLogic:
         self.frame = frame
         self.currency = {
             'USA - Dollar' : 1, 
-            'Europe - Euro' : 0.91, 
+            'Europe - Euro' : 0.92, 
             'Japan - Yen' : 157.54, 
             'UK - Pound' : 0.77, 
             'China - Renminbi' : 7.26, 
@@ -391,6 +391,9 @@ class ConverterLogic:
         self.top_selected = frame.top_selected
         self.bottom_selected = frame.bottom_selected
 
+        self.top_selected.set('USA - Dollar')
+        self.bottom_selected.set('Europe - Euro')
+
         self.input_list = []
         self.comma = False
 
@@ -415,13 +418,31 @@ class ConverterLogic:
             self.comma = False
             self.input_list = []
 
-        self.Calculate()
+        self.Update()
+
+    def Update(self):
+        self.risultato = self.Calculate()
         self.Display()
 
     def Calculate(self):
-        pass
+        parsed_list = self.ParseList(self.input_list)
+        if parsed_list == '':
+            parsed_list = '0'
+        valore_iniziale = float(parsed_list)
+        valuta_top = self.currency[self.top_selected.get()]
+        valuta_bot = self.currency[self.bottom_selected.get()]
+
+        risultato = (valore_iniziale/valuta_top)*valuta_bot
+
+        risultato = round(risultato,2)
+
+        if int(risultato) == float(risultato):
+                risultato = int(risultato)
+
+        return f'{risultato}'
 
     def Display(self):
+        # TOP TERM
         term1 = self.ParseList(self.input_list).replace('.', ',')
         if term1 == '':
             self.top_variable.set('0')
@@ -429,6 +450,9 @@ class ConverterLogic:
             self.top_variable.set(f'0{term1}')
         else:
             self.top_variable.set(term1)
+
+        # BOTTOM TERM
+        self.bottom_variable.set(self.risultato)
 
     def ParseList(self,list):
         result = ''
