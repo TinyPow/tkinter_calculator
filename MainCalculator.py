@@ -241,9 +241,9 @@ class MainFrame(ctk.CTkFrame):
     def __init__(self,parent,window,logic, result_variable, upper_variable):
         super().__init__(parent)
 
-        self.top_frame = DisplayFrame(self,window, result_variable,upper_variable)
-        self.buttons_frame = ButtonsFrame(self,logic)
         self.memory_frame = MemoryFrame(self,logic)
+        self.buttons_frame = ButtonsFrame(self,logic)
+        self.top_frame = DisplayFrame(self,window, result_variable,upper_variable)
 
         self.top_frame.place(relx = 0,rely= 0, relwidth = 1,relheight = 0.3)
         self.memory_frame.place(relx = 0, rely = 0.3 , relwidth = 1, relheight = 0.1)
@@ -310,7 +310,7 @@ class DisplayFrame(ctk.CTkFrame):
         super().__init__(parent,fg_color='transparent')
 
         self.window = window
-
+        self.parent = parent
         self.ButtonText = '|||'
         self.MaxSize = True
         self.result_variable = result_variable
@@ -343,6 +343,7 @@ class DisplayFrame(ctk.CTkFrame):
                 self.previous.place_forget()
                 self.top_frame.place_forget()
                 self.results.place_forget()
+                self.parent.memory_frame.place_forget()
             except:
                 pass
 
@@ -351,10 +352,14 @@ class DisplayFrame(ctk.CTkFrame):
             self.previous.place(relx =0.95,rely= 0.35,relwidth = 1,relheight = 0.2,anchor = 'ne')     
             self.top_frame.place(relx = 1, rely= 0, relwidth = 1, relheight = 0.3, anchor = 'ne')
             self.results.place(relx =0.98,rely= 0.55,relwidth = 1, relheight = 0.45,anchor = 'ne')
+            self.parent.memory_frame.place(relx = 0, rely = 0.3 , relwidth = 1, relheight = 0.1)
+            self.parent.buttons_frame.place(relx = 0,rely= 0.4, relwidth = 1,relheight = 0.6)
 
         else:    
             self.title_bar.place(relx = 0, rely = 0 ,relwidth = 1)
             self.results.place(relx =0.98,rely= 0.3,relwidth = 1, relheight = 0.5,anchor = 'ne')
+            self.parent.buttons_frame.place(relx = 0,rely= 0.3, relwidth = 1,relheight = 0.7)
+
 
     def ChangeSide(self):
         if self.MaxSize:
@@ -373,7 +378,7 @@ class DisplayFrame(ctk.CTkFrame):
             self.window.overrideredirect(False)
             self.MaxSize = True
             self.ButtonText = '|||'
-            self.window.geometry('500x700')
+            self.window.geometry('800x700')
             self.create_widgets()
             self.create_layout()
     
