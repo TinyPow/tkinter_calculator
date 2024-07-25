@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from ctypes import windll
-from LogicFile import CalculatorLogic
+from CalculatorLogic import CalculatorLogic
 
 class CalculatorFrame(ctk.CTkFrame):
     def __init__(self, parent):

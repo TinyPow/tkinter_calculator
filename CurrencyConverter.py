@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from LogicFile import ConverterLogic
+from ConverterLogic import ConverterLogic
 
 class ConverterFrame(ctk.CTkFrame):
     def __init__(self,parent):
