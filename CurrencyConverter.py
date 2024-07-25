@@ -4,13 +4,15 @@ from LogicFile import ConverterLogic
 class ConverterFrame(ctk.CTkFrame):
     def __init__(self,parent):
         super().__init__(parent)
-        
-        self.logic = ConverterLogic(self)
 
-        top_variable = ctk.StringVar(value='Prova 1')
-        bottom_variable = ctk.StringVar(value = 'Prova 2')
+        self.top_variable = ctk.StringVar(value='0')
+        self.bottom_variable = ctk.StringVar(value = '0')
+        self.top_selected = ctk.StringVar()
+        self.bottom_selected = ctk.StringVar()
+
+        self.logic = ConverterLogic(self)
         
-        self.top_frame = DisplayFrame(self,parent,top_variable,bottom_variable, self.logic.currency_list)
+        self.top_frame = DisplayFrame(self,parent,self.top_variable,self.bottom_variable,self.top_selected,self.bottom_selected, self.logic.currency_names)
         self.buttons_frame = ButtonsFrame(self, self.logic)
 
         self.buttons_frame.place(relx = 0,rely= 0.45, relwidth = 1,relheight = 0.55)
@@ -19,17 +21,17 @@ class ConverterFrame(ctk.CTkFrame):
         self.pack(expand = True, fill = 'both')
 
 class DisplayFrame(ctk.CTkFrame):
-    def __init__(self,parent,window, top_variable, bottom_variable, currency_list):
+    def __init__(self,parent,window,top_variable,bottom_variable,top_selected,bottom_selected,currency_list):
         super().__init__(parent, fg_color='#2E2E2E')
 
         self.window = window
         self.top_frame = TopFrame(self)
 
-        self.top = ctk.CTkLabel(self, textvariable= top_variable,font=('Arial', 30), anchor='w')
-        self.combo_top = ctk.CTkComboBox(self, values=currency_list , width = 200)
+        self.top = ctk.CTkLabel(self, textvariable=top_variable,font=('Arial', 40), anchor='w')
+        self.combo_top = ctk.CTkComboBox(self, values=currency_list , width = 200,variable= top_selected)
 
-        self.bottom = ctk.CTkLabel(self,textvariable=bottom_variable, font=('Arial', 30), anchor='w')
-        self.combo_bottom = ctk.CTkComboBox(self, values=currency_list, width = 200)
+        self.bottom = ctk.CTkLabel(self,textvariable=bottom_variable, font=('Arial', 40), anchor='w')
+        self.combo_bottom = ctk.CTkComboBox(self, values=currency_list, width = 200, variable= bottom_selected)
         
         self.top_frame = TopFrame(self)
 
