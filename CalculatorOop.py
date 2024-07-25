@@ -10,24 +10,31 @@ class App(ctk.CTk):
         self.geometry('500x700')
         self.title('Calculator')
         self.iconbitmap('Calculator.ico')
-
-        self.result_variable = ctk.StringVar(value = '0')  # REFERENCED IN LOGIC 
-        self.upper_varaible = ctk.StringVar()              # REFERENCED IN LOGIC 
-        #STYLE
-
-        self.logic = CalculatorLogic(self)
-        self.top_frame = DisplayFrame(self, self.result_variable,self.upper_varaible)
-        self.top_frame.place(relx = 0,rely= 0, relwidth = 1,relheight = 0.3)
-
-        self.buttons_frame = ButtonsFrame(self,self.logic)
-        self.buttons_frame.place(relx = 0,rely= 0.3, relwidth = 1,relheight = 0.7)
-
-        self.side_bar = SideBar(self)    
+ 
+        self.calculator_frame = CalculatorFrame(self)
+        self.side_bar = SideBar(self)   
 
         self.mainloop()
     
     def SideScroll(self):
         self.side_bar.Animate()
+
+class CalculatorFrame(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.result_variable = ctk.StringVar(value = '0')  # REFERENCED IN LOGIC 
+        self.upper_varaible = ctk.StringVar()              # REFERENCED IN LOGIC 
+
+        self.logic = CalculatorLogic(self)
+
+        self.top_frame = DisplayFrame(self,parent, self.result_variable,self.upper_varaible)
+        self.buttons_frame = ButtonsFrame(self,self.logic)
+
+        self.buttons_frame.place(relx = 0,rely= 0.3, relwidth = 1,relheight = 0.7)
+        self.top_frame.place(relx = 0,rely= 0, relwidth = 1,relheight = 0.3)
+
+        self.pack(expand = True, fill = 'both')
 
 class SideBar(ctk.CTkFrame):
     def __init__(self,parent):
@@ -77,7 +84,6 @@ class SideBar(ctk.CTkFrame):
         
         self.PlaceButton()
     
-
     def Animate(self):
         if self.is_animating == False:
             if self.in_start_pos:
@@ -110,10 +116,12 @@ class SideBar(ctk.CTkFrame):
             else:
                 self.pos -= 20
             self.place(x = self.pos, rely= 0, relheight = 1,anchor = 'nw')
+            self.front_button.place(x = 10,y= 10, anchor = 'nw')
             self.after(10, self.animate_backwards)    
         else:
             self.in_start_pos = True
             self.is_animating = False  
+            self.front_button.place_forget()
     
     def PlaceButton(self):
         self.SideButton.place(x = 10,y=10, anchor = 'nw')
@@ -125,7 +133,7 @@ class TopFrame(ctk.CTkFrame):
         self.SideButton = ctk.CTkButton(
             self,
             text_color = 'white', 
-            command = parent.parent.SideScroll, 
+            command = parent.window.SideScroll, 
             fg_color='transparent', 
             text= "///", 
             hover_color= '#424242', 
@@ -154,10 +162,11 @@ class TopFrame(ctk.CTkFrame):
         self.MinimizeButton.place(x = 150,y= 8, anchor = 'nw')
       
 class DisplayFrame(ctk.CTkFrame):
-    def __init__(self,parent, result_variable, upper_variable):
-        super().__init__(parent)
+    def __init__(self,parent,window, result_variable, upper_variable):
+        super().__init__(parent, fg_color='#2E2E2E')
 
-        self.parent = parent
+        self.window = window
+
         self.ButtonText = '|||'
         self.MaxSize = True
         self.result_variable = result_variable
@@ -183,7 +192,7 @@ class DisplayFrame(ctk.CTkFrame):
             self.top_frame = TopFrame(self)
 
         else:
-            self.title_bar = TitleBar(self.parent,self)
+            self.title_bar = TitleBar(self.window,self)
 
     def place_reset(self):
             try:
@@ -205,22 +214,22 @@ class DisplayFrame(ctk.CTkFrame):
 
     def ChangeSide(self):
         if self.MaxSize:
-            self.parent.attributes('-topmost', True)
-            self.parent.overrideredirect(True)
-            self.parent.update_idletasks()
-            self.parent.withdraw()
+            self.window.attributes('-topmost', True)
+            self.window.overrideredirect(True)
+            self.window.update_idletasks()
+            self.window.withdraw()
             self.set_appwindow()
             self.MaxSize = False
             self.ButtonText = '|||'
-            self.parent.geometry('300x500')
+            self.window.geometry('300x500')
             self.create_widgets()
             self.create_layout()
         else:
-            self.parent.attributes('-topmost', False)
-            self.parent.overrideredirect(False)
+            self.window.attributes('-topmost', False)
+            self.window.overrideredirect(False)
             self.MaxSize = True
             self.ButtonText = '|||'
-            self.parent.geometry('500x700')
+            self.window.geometry('500x700')
             self.create_widgets()
             self.create_layout()
     
@@ -229,20 +238,20 @@ class DisplayFrame(ctk.CTkFrame):
             GWL_EXSTYLE=-20
             WS_EX_APPWINDOW=0x00040000
             WS_EX_TOOLWINDOW=0x00000080
-            hwnd = windll.user32.GetParent(self.parent.winfo_id())
+            hwnd = windll.user32.GetParent(self.window.winfo_id())
             style = windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
             style = style & ~WS_EX_TOOLWINDOW
             style = style | WS_EX_APPWINDOW
             res = windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
-            self.parent.withdraw()
-            self.parent.after(10, lambda:self.parent.wm_deiconify())
+            self.window.withdraw()
+            self.window.after(10, lambda:self.window.wm_deiconify())
 
 class TitleBar(ctk.CTkFrame):
-    def __init__(self,parent,frame):
-        super().__init__(parent, height = 40)
-        self.parent = parent
+    def __init__(self,window,frame):
+        super().__init__(window, height = 40, fg_color='#2E2E2E')
+        self.window = window
 
-        self.ExitButton = ctk.CTkButton(self, text = 'X', fg_color= 'transparent', hover_color= 'red', command = parent.destroy,corner_radius= 0 )
+        self.ExitButton = ctk.CTkButton(self, text = 'X', fg_color= 'transparent', hover_color= 'red', command = window.destroy,corner_radius= 0 )
         self.ExitButton.place(relx = 1, rely = 0, anchor = 'ne' , relwidth = 0.2, relheight = 1)
 
         self.MinimizeButton = ctk.CTkButton(self,text_color = 'white', command = frame.ChangeSide, fg_color='transparent', text= frame.ButtonText, hover_color= '#424242')
@@ -254,17 +263,17 @@ class TitleBar(ctk.CTkFrame):
         self.bind("<B1-Motion>", self.dragwin)
     
     def dragwin(self,event):
-        x = self.parent.winfo_pointerx() - self._offsetx
-        y = self.parent.winfo_pointery() - self._offsety
+        x = self.window.winfo_pointerx() - self._offsetx
+        y = self.window.winfo_pointery() - self._offsety
         
-        self.parent.geometry(f"+{x}+{y}")
+        self.window.geometry(f"+{x}+{y}")
 
     def clickwin(self,event):
-        self._offsetx = self.parent.winfo_pointerx() - self.parent.winfo_rootx()
-        self._offsety = self.parent.winfo_pointery() - self.parent.winfo_rooty()
+        self._offsetx = self.window.winfo_pointerx() - self.window.winfo_rootx()
+        self._offsety = self.window.winfo_pointery() - self.window.winfo_rooty()
 
 class ButtonsFrame(ctk.CTkFrame):
-    def __init__(self, parent, logic):
+    def __init__(self, parent,logic):
         super().__init__(parent)
 
         self.create_widgets(logic)
