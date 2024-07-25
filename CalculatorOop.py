@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from MainCalculator import CalculatorFrame
 from CurrencyConverter import ConverterFrame
+from time import sleep
 
 # APP CLASS
 class App(ctk.CTk):
@@ -11,14 +12,36 @@ class App(ctk.CTk):
         self.title('Calculator')
         self.iconbitmap('Calculator.ico')
 
-        self.converter_frame = ConverterFrame(self)
-        #self.calculator_frame = CalculatorFrame(self)
-        self.side_bar = SideBar(self)   
+        self.frame = Frame(self)   
+        self.side_bar = SideBar(self)
 
         self.mainloop()
     
     def SideScroll(self):
         self.side_bar.Animate()
+
+class Frame():
+    def __init__(self,window):
+        self.id = 0
+        self.window = window
+        self.calculator_frame = CalculatorFrame(window)
+        self.active_frame = self.calculator_frame
+
+    def CalculatorSwitch(self):
+        if self.id != 0:
+            self.active_frame.pack_forget()
+            self.active_frame.destroy()
+            self.active_frame = CalculatorFrame(self.window)
+            self.active_frame.lower()
+            self.id = 0
+
+    def ConverterSwitch(self):
+        if self.id != 1:
+            self.active_frame.pack_forget()
+            self.active_frame.destroy()
+            self.active_frame = ConverterFrame(self.window)
+            self.active_frame.lower()
+            self.id = 1
 
 class SideBar(ctk.CTkFrame):
     def __init__(self,parent):
@@ -58,6 +81,7 @@ class SideBar(ctk.CTkFrame):
         
         self.calculator_button = ctk.CTkButton(
             self,
+            command = lambda: self.ChangeMode('calculator'),
             text_color = 'white',
             fg_color= 'transparent',
             text= "Calculator", 
@@ -68,6 +92,7 @@ class SideBar(ctk.CTkFrame):
         
         self.currency_button = ctk.CTkButton(
             self,
+            command = lambda: self.ChangeMode('currency'),
             text_color = 'white',
             fg_color= 'transparent',
             text= "Currency", 
@@ -90,6 +115,14 @@ class SideBar(ctk.CTkFrame):
         self.currency_button.place(y = 160, relx = 0.07, relwidth = 0.86, anchor = 'w')
         
         self.PlaceButton()
+    
+    def ChangeMode(self, name):
+        if name == 'calculator':
+            self.parent.frame.CalculatorSwitch()
+        elif name == 'currency':
+            self.parent.frame.ConverterSwitch()
+
+        self.animate_backwards()
     
     def Animate(self):
         if self.is_animating == False:
