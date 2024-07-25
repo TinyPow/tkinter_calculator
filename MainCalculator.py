@@ -43,20 +43,49 @@ class CalculatorFrame(ctk.CTkFrame):
 
 class SideFrame(ctk.CTkTabview):
     def __init__(self,parent,logic):
-        super().__init__(parent, width = 280)
+        super().__init__(
+            parent, 
+            width = 280, 
+            segmented_button_selected_hover_color='#313131', 
+            segmented_button_unselected_hover_color='#313131',
+            segmented_button_selected_color='#313131',
+            anchor = 'w')
         
+        self.button_list = []
         self.logic = logic
         self.tab_history = self.add('History')
         self.tab_memory = self.add('Memory')
         self.first = True
-        self.base_label = ctk.CTkLabel(self.tab_history, text = 'No history yet')
-        self.base_label.pack()
+        self.base_label = ctk.CTkLabel(self.tab_history, text = 'No history yet', font = ('Arial',25))
+        self.base_label.pack(pady = 20)
+
+    def DeleteHistory(self):
+        for button in self.button_list:
+            button.pack_forget()
+            button.destroy()
+        self.first = True
+        self.base_label = ctk.CTkLabel(self.tab_history, text = 'No history yet', font = ('Arial',25))
+        self.base_label.pack(pady = 20)
 
     def AddHistory(self, result, top):
         if self.first:
             self.base_label.pack_forget()
             self.first = False
-        HistoryButton(self.tab_history,result,top,self.logic).pack(fill = 'x')
+            self.delete_button = ctk.CTkButton(
+                self,
+                text = 'X',
+                font = ('Arial', 20),
+                fg_color= '#424242',
+                hover_color= '#313131',
+                corner_radius= 15,
+                width = 50,
+                height= 50, 
+                command = self.DeleteHistory)
+        
+        self.delete_button.place( relx= 0.98, rely = 0.99, anchor = 'se')
+
+        self.button_list.append(HistoryButton(self.tab_history,result,top,self.logic))
+        self.button_list[len(self.button_list) - 1].pack(fill = 'x')
 
 class HistoryButton(ctk.CTkButton):
     def __init__(self,parent,result,top,logic):
@@ -66,6 +95,7 @@ class HistoryButton(ctk.CTkButton):
             text_color = '#878787', 
             font = ('Arial', 30),
             fg_color = 'transparent',
+            hover_color= '#313131',
             anchor = 'e',
             command= lambda: logic.History(top,result),
             height = 90,
@@ -305,5 +335,4 @@ class Button(ctk.CTkButton):
         red = int(int(color[1:3],16) * factor)
         green = int(int(color[3:5],16)* factor)
         blue = int(int(color[5:7], 16) * factor)
-
         return(f'#{hex(red)[2:]}{hex(green)[2:]}{hex(blue)[2:]}')
