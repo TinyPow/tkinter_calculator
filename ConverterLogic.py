@@ -2,6 +2,7 @@ import requests
 import yaml
 import os.path
 import json
+import datetime
 
 class ConverterLogic:
     def __init__(self, frame):
@@ -13,6 +14,7 @@ class ConverterLogic:
             with open('currency_values.json') as currency_values_json:
                 data = json.load(currency_values_json)
                 values_raw = data['response']['rates']
+                self.raw_date = data['response']['date']
         else:
             try:
                 with open('api_key.yaml') as api_key_file:
@@ -26,8 +28,11 @@ class ConverterLogic:
             response = requests.get(api_url)
             currency_values = response.json()
             values_raw = currency_values['response']['rates']
+            self.raw_date = currency_values['response']['date']
             with open('currency_values.json', 'w') as currency_values_json:
                 json.dump(currency_values,currency_values_json)
+
+        self.frame.start_date = self.UpdateRawDate(self.raw_date)
 
         self.currency_symble = {
             'USA - Dollar' : 'USD', 
@@ -69,7 +74,31 @@ class ConverterLogic:
         self.input_list = []
         self.comma = False
 
+    def UpdateRawDate(self,date):
+        year = int(date[0:4])
+        month = int(date[5:7])
+        day = int(date[8:10])
+        hour = int(date[11:13])
+        minute = int(date[14:16])
+        second = int(date[17:19])
+        conv = datetime.datetime(year= year,month=month,day=day,hour=hour,minute=minute,second=second)
+        final = conv + datetime.timedelta(hours = 2)
+        fin_day = self.Add0ToDate(final.day)
+        fin_month = self.Add0ToDate(final.month)
+        fin_hour = self.Add0ToDate(final.hour)
+        fin_minute = self.Add0ToDate(final.minute)
+        fin_second = self.Add0ToDate(final.second)
+
+        return f'Updated on {fin_day}/{fin_month}/{final.year} at {fin_hour}:{fin_minute}:{fin_second}'
+    
+    def Add0ToDate(self,input_str):
+        if len(str(input_str)) == 1:
+            return f'0{input_str}'
+        else:
+            return input_str
+        
     def UpdateRates(self):
+        date_var = self.frame.top_frame.last_updated_var
         if self.api_call:
             return
         else:
@@ -84,12 +113,15 @@ class ConverterLogic:
                 json.dump(currency_values,currency_values_json)
 
             values_raw = currency_values['response']['rates']
+            raw_date = currency_values['response']['date']
 
+            date_var.set(self.UpdateRawDate(raw_date))
             self.currency = dict()
 
             for key,element in self.currency_symble.items():
                 self.currency.update({key:values_raw[element]})
 
+            self.UpdateRawDate(raw_date)
             self.Update()
 
     def Input(self,text):

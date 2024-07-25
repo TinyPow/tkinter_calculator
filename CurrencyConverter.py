@@ -5,6 +5,7 @@ class ConverterFrame(ctk.CTkFrame):
     def __init__(self,parent):
         super().__init__(parent)
 
+        self.start_date = ''
         self.top_variable = ctk.StringVar(value='0')
         self.bottom_variable = ctk.StringVar(value = '0')
         self.top_selected = ctk.StringVar()
@@ -12,7 +13,7 @@ class ConverterFrame(ctk.CTkFrame):
 
         self.logic = ConverterLogic(self)
         
-        self.top_frame = DisplayFrame(self,parent,self.top_variable,self.bottom_variable,self.top_selected,self.bottom_selected, self.logic.currency_names)
+        self.top_frame = DisplayFrame(self,parent,self.top_variable,self.bottom_variable,self.top_selected,self.bottom_selected, self.logic.currency_names, self.start_date)
         self.buttons_frame = ButtonsFrame(self, self.logic)
 
         self.buttons_frame.place(relx = 0,rely= 0.45, relwidth = 1,relheight = 0.55)
@@ -21,9 +22,10 @@ class ConverterFrame(ctk.CTkFrame):
         self.pack(expand = True, fill = 'both')
 
 class DisplayFrame(ctk.CTkFrame):
-    def __init__(self,parent,window,top_variable,bottom_variable,top_selected,bottom_selected,currency_list):
+    def __init__(self,parent,window,top_variable,bottom_variable,top_selected,bottom_selected,currency_list, start_date):
         super().__init__(parent, fg_color='#2E2E2E')
 
+        self.last_updated_var = ctk.StringVar(value = start_date)
         self.window = window
         self.top_frame = TopFrame(self)
 
@@ -42,8 +44,10 @@ class DisplayFrame(ctk.CTkFrame):
             height = 50,
             fg_color= 'transparent',
             hover_color= '#424242',
-            font = ('Arial', 15),
+            font = ('Arial', 18),
             text_color= 'white')
+        
+        self.last_updated = ctk.CTkLabel(self, textvariable = self.last_updated_var, font = ('Arial', 12))
 
         self.combo_top._canvas.bind('<Button-1>',lambda event: self.after(2,parent.logic.Update))
         self.combo_bottom._canvas.bind('<Button-1>',lambda event:self.after(2,parent.logic.Update))
@@ -54,7 +58,8 @@ class DisplayFrame(ctk.CTkFrame):
         self.combo_top.place(x = 20, rely = 0.4, relheight = 0.1, anchor = 'nw')
         self.bottom.place(x = 20,rely= 0.525,relwidth = 1, relheight = 0.3,anchor = 'nw')
         self.combo_bottom.place(x = 20, rely = 0.8, relheight = 0.1, anchor = 'nw')   
-        self.update_exchange.place(relx = 0.95, rely = 0.77,anchor = 'ne')
+        self.update_exchange.place(relx = 1, rely = 1, x = -10, y = -40,anchor = 'se')
+        self.last_updated.place(relx = 1, rely = 1, x =-20, y = -10, anchor = 'se')
 
 class TopFrame(ctk.CTkFrame):
     def __init__(self, parent):

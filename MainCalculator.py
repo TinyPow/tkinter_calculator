@@ -82,7 +82,7 @@ class SideFrame(ctk.CTkTabview):
                 height= 50, 
                 command = self.DeleteHistory)
         
-        self.delete_button.place( relx= 0.98, rely = 0.99, anchor = 'se')
+        self.delete_button.place( relx= 1, rely = 1,x= -5, y = -5, anchor = 'se')
 
         self.button_list.append(HistoryButton(self.tab_history,result,top,self.logic))
         self.button_list[len(self.button_list) - 1].pack(fill = 'x')
