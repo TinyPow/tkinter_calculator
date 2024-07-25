@@ -7,6 +7,7 @@ class ConverterLogic:
     def __init__(self, frame):
         self.frame = frame
         self.currency = dict()
+        self.api_call = False
 
         if(os.path.isfile('currency_values.json')):
             with open('currency_values.json') as currency_values_json:
@@ -67,6 +68,29 @@ class ConverterLogic:
 
         self.input_list = []
         self.comma = False
+
+    def UpdateRates(self):
+        if self.api_call:
+            return
+        else:
+            self.api_call = True
+            with open('currency_values.json', 'w') as currency_values_json:
+                with open('api_key.yaml') as api_key_file:
+                        api_key_yaml = yaml.safe_load(api_key_file)
+                        api_key = api_key_yaml['api_key']
+                api_url = f"https://api.currencybeacon.com/v1/latest?api_key={api_key}&base=USD"
+                response = requests.get(api_url)
+                currency_values = response.json()
+                json.dump(currency_values,currency_values_json)
+
+            values_raw = currency_values['response']['rates']
+
+            self.currency = dict()
+
+            for key,element in self.currency_symble.items():
+                self.currency.update({key:values_raw[element]})
+
+            self.Update()
 
     def Input(self,text):
         if text.isdigit() and len(self.input_list) < 10:

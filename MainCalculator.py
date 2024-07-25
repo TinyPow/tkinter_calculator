@@ -127,7 +127,7 @@ class DisplayFrame(ctk.CTkFrame):
             self.create_layout()
     
     def set_appwindow(self):
-            # NO IDEA DI COME FUNZIONA MA FUNZIONA
+            # NO IDEA OF HOW IT WORKS
             GWL_EXSTYLE=-20
             WS_EX_APPWINDOW=0x00040000
             WS_EX_TOOLWINDOW=0x00000080

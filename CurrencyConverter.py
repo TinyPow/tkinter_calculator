@@ -34,6 +34,17 @@ class DisplayFrame(ctk.CTkFrame):
         self.combo_bottom = ctk.CTkComboBox(self, values=currency_list, width = 200, variable= bottom_selected, state = 'readonly')
         self.top_frame = TopFrame(self)
 
+        self.update_exchange = ctk.CTkButton(
+            self, 
+            text = 'Update excange rates', 
+            command = parent.logic.UpdateRates,
+            width = 200,
+            height = 50,
+            fg_color= 'transparent',
+            hover_color= '#424242',
+            font = ('Arial', 15),
+            text_color= 'white')
+
         self.combo_top._canvas.bind('<Button-1>',lambda event: self.after(2,parent.logic.Update))
         self.combo_bottom._canvas.bind('<Button-1>',lambda event:self.after(2,parent.logic.Update))
 
@@ -43,6 +54,7 @@ class DisplayFrame(ctk.CTkFrame):
         self.combo_top.place(x = 20, rely = 0.4, relheight = 0.1, anchor = 'nw')
         self.bottom.place(x = 20,rely= 0.525,relwidth = 1, relheight = 0.3,anchor = 'nw')
         self.combo_bottom.place(x = 20, rely = 0.8, relheight = 0.1, anchor = 'nw')   
+        self.update_exchange.place(relx = 0.95, rely = 0.77,anchor = 'ne')
 
 class TopFrame(ctk.CTkFrame):
     def __init__(self, parent):
