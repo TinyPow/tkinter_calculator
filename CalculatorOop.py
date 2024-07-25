@@ -44,6 +44,17 @@ class SideBar(ctk.CTkFrame):
 
         self.place(x = self.start_pos,rely= 0,relheight = 1,anchor = 'nw')
 
+        self.front_button = ctk.CTkButton(
+            parent,
+            text_color = 'white', 
+            hover = False,
+            command = parent.SideScroll, 
+            fg_color='transparent', 
+            text= "///", 
+            hover_color= '#424242', 
+            width= 40,
+            font= ('Arial', 22))
+        
         self.SideButton = ctk.CTkButton(
             self,
             text_color = 'white', 
@@ -84,10 +95,12 @@ class SideBar(ctk.CTkFrame):
             else:
                 self.pos += 20
             self.place(x = self.pos, rely= 0, relheight = 1,anchor = 'nw')
+            self.front_button.place(x = 10,y= 10, anchor = 'nw')
             self.after(10, self.animate_forward)
         else:
             self.in_start_pos = False
             self.is_animating = False
+            self.front_button.place_forget()
             self.PlaceButton()
 
     def animate_backwards(self):
