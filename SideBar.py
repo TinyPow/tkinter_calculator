@@ -79,8 +79,8 @@ class SideBar(ctk.CTkFrame):
         elif name == 'currency':
             self.parent.frame.ConverterSwitch()
 
-        self.animate_backwards()
-    
+        self.after(170,self.animate_backwards) # DELAY NECESSARY IF NOT GRAPHIC GLITCH
+
     def Animate(self):
         if self.is_animating == False:
             if self.in_start_pos:
