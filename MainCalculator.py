@@ -6,6 +6,7 @@ class CalculatorFrame(ctk.CTkFrame):
     def __init__(self, parent):
         super().__init__(parent)
         
+        self.parent = parent
         self.size = 0
         self.result_variable = ctk.StringVar(value = '0')  # REFERENCED IN LOGIC 
         self.upper_varaible = ctk.StringVar()              # REFERENCED IN LOGIC 
@@ -51,23 +52,34 @@ class SideFrame(ctk.CTkTabview):
             segmented_button_unselected_hover_color='#313131',
             segmented_button_selected_color='#313131',
             anchor = 'w')
-        
+        self.parent = parent
         self.tab_history = self.add('History')
         self.tab_memory = self.add('Memory')
 
-        self.scrollable_frame = ScrollableFrame(self.tab_history, logic)
-        self.scrollable_frame.pack(expand = True, fill = 'both')
+        self.scrollable_frame_memory = ScrollableFrame(self.tab_memory, logic, 'memory',self)
+        self.scrollable_frame_memory.pack(expand = True, fill = 'both')
+        self.scrollable_frame_memory.AddElement(22,23)
+        self.scrollable_frame_memory.AddElement(24,25)
+
+        self.scrollable_frame_history = ScrollableFrame(self.tab_history, logic, 'history',self)
+        self.scrollable_frame_history.pack(expand = True, fill = 'both')
 
 class ScrollableFrame(ctk.CTkScrollableFrame):
-    def __init__(self, parent, logic):
-        super().__init__(parent)
-
+    def __init__(self, parent, logic, type_frame,true_parent):
+        super().__init__(parent,fg_color='#2E2E2E')
+        
+        self.true_parent = true_parent
+        self.type_frame = type_frame
         self.parent = parent
         self.button_list = []
         self.logic = logic
+        if type_frame == 'memory':
+            self.base_label_text = 'No memory item yet'
+        else:
+            self.base_label_text = 'No history item yet'
 
         self.first = True
-        self.base_label = ctk.CTkLabel(self, text = 'No history yet', font = ('Arial',25))
+        self.base_label = ctk.CTkLabel(self, text = self.base_label_text, font = ('Arial',25))
         self.base_label.pack(pady = 20)
 
     def DeleteHistory(self):
@@ -75,11 +87,11 @@ class ScrollableFrame(ctk.CTkScrollableFrame):
             button.pack_forget()
             button.destroy()
         self.first = True
-        self.base_label = ctk.CTkLabel(self, text = 'No history yet', font = ('Arial',25))
+        self.base_label = ctk.CTkLabel(self, text = self.base_label_text, font = ('Arial',25))
         self.base_label.pack(pady = 20)
         self.delete_button.place_forget()
 
-    def AddHistory(self, result, top):
+    def AddElement(self, result, top):
         if self.first:
             self.base_label.pack_forget()
             self.first = False
@@ -96,9 +108,98 @@ class ScrollableFrame(ctk.CTkScrollableFrame):
         
         self.delete_button.place( relx= 1, rely = 1,x= -20, y = -10, anchor = 'se')
 
-        self.button_list.append(HistoryButton(self,result,top,self.logic))
+        if self.type_frame == 'memory':
+            self.button_list.append(MemoryElementFrame(self,result,self.logic))
+        else:
+            self.button_list.append(HistoryButton(self,result,top,self.logic))
         self.button_list[len(self.button_list) - 1].pack(fill = 'x',side = 'bottom')
 
+class MemoryElementFrame(ctk.CTkFrame):
+    def __init__(self,parent,result,logic):
+        super().__init__(parent,height = 90,width = 260, fg_color='transparent')
+
+        self.result = result
+        self.placed = False
+        self.parent = parent
+        self.logic = logic
+
+        self.result_label = ctk.CTkLabel(
+            self,
+            text = f'{result}',
+            font = ('Arial', 30),
+            fg_color = 'transparent',
+            anchor = 'e')
+        
+        self.mc_button = ctk.CTkButton(
+            self,
+            text = 'MC',
+            font = ('Arial', 15),
+            width = 30,
+            height = 30,
+            fg_color = '#313131',
+            hover_color = '#242424',
+            command = lambda: self.logic.InButtonMemory('MC',result))
+
+        self.mplus_button = ctk.CTkButton(
+            self,
+            text = 'M+',
+            width = 30,
+            height = 30,
+            font = ('Arial', 15),
+            hover_color = '#242424',
+            fg_color = '#313131',
+            command = lambda: self.logic.InButtonMemory('M+',result))
+         
+        self.mminus_button = ctk.CTkButton(
+            self,
+            text = 'M-',
+            width = 30,
+            height = 30,
+            hover_color = '#242424',
+            font = ('Arial', 15),
+            fg_color = '#313131',
+            command = lambda: self.logic.InButtonMemory('M-',result))
+        
+        self.result_label.place(relx = 1, y = 5, x = -20, anchor = 'ne')
+        
+        self.widgets = [self, self.result_label, self.mc_button, self.mplus_button, self.mminus_button]
+        for widget in self.widgets:
+            widget.bind('<Enter>', self.HoverIn)
+            widget.bind('<Leave>', self.HoverOut)
+        
+        self.bind('<Button-1>',self.Click)
+        self.result_label.bind('<Button-1>', self.Click)
+
+    def Click(self, event):
+        self.logic.MemoryClick(self.result)
+        self.configure(fg_color = 'transparent')
+        self.after(100, self.Darken)
+
+    def Darken(self):
+        self.configure(fg_color = '#313131')
+
+    def HoverIn(self,event):
+        if not(self.placed):
+            self.configure(fg_color = '#313131')
+            self.mc_button.place(anchor = 'se', relx= 1,rely = 1, x= -20,y = -5)
+            self.mplus_button.place(anchor = 'se', relx= 1,rely = 1, x = -60,y = -5)
+            self.mminus_button.place(anchor = 'se', relx= 1,rely = 1, x = -100,y = -5)
+            self.placed = True
+
+    def HoverOut(self,event):
+        posx = self.winfo_rootx()
+        posy = self.winfo_rooty()
+        if(event.x_root < (posx + 5)) or (event.x_root > ((posx + 260) - 15)) or (event.y_root < (posy + 5)) or (event.y_root > ((posy + 90) - 5)):
+            pass
+        else:
+            return           
+
+        self.configure(fg_color = 'transparent')
+        self.mc_button.place_forget()
+        self.mplus_button.place_forget()
+        self.mminus_button.place_forget()
+        self.placed = False
+        
 class HistoryButton(ctk.CTkButton):
     def __init__(self,parent,result,top,logic):
         super().__init__(
@@ -142,9 +243,32 @@ class MainFrame(ctk.CTkFrame):
 
         self.top_frame = DisplayFrame(self,window, result_variable,upper_variable)
         self.buttons_frame = ButtonsFrame(self,logic)
+        self.memory_frame = MemoryFrame(self,logic)
 
-        self.buttons_frame.place(relx = 0,rely= 0.3, relwidth = 1,relheight = 0.7)
         self.top_frame.place(relx = 0,rely= 0, relwidth = 1,relheight = 0.3)
+        self.memory_frame.place(relx = 0, rely = 0.3 , relwidth = 1, relheight = 0.1)
+        self.buttons_frame.place(relx = 0,rely= 0.4, relwidth = 1,relheight = 0.6)
+
+class MemoryFrame(ctk.CTkFrame):
+    def __init__(self,parent,logic):
+        super().__init__(parent,fg_color='transparent')
+        
+        self.logic = logic
+        item_list = ['MC', 'MR', 'M+', 'M-', 'MS']
+        for item in item_list:
+            self.CreateButton(item)
+
+    def CreateButton(self,text):
+        button = ctk.CTkButton(
+        self,
+        text = text,
+        command = lambda: self.logic.MemoryInput(text),
+        fg_color = 'transparent',
+        hover_color= '#424242',
+        font = ('Arial', 15),
+        width = 40,
+        height = 40,)
+        button.pack(side = 'left',padx= 15,pady =10)
 
 class TopFrame(ctk.CTkFrame):
     def __init__(self, parent):
@@ -183,7 +307,7 @@ class TopFrame(ctk.CTkFrame):
       
 class DisplayFrame(ctk.CTkFrame):
     def __init__(self,parent,window, result_variable, upper_variable):
-        super().__init__(parent, fg_color='#2E2E2E')
+        super().__init__(parent,fg_color='transparent')
 
         self.window = window
 

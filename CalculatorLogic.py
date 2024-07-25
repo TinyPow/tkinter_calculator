@@ -25,6 +25,9 @@ class CalculatorLogic:
         self.maxLen = 8
         self.upper = self.window.upper_varaible
     
+    def MemoryInput(self,text):
+        print(text)
+
     def TotalLen(self):
         if self.state == 0:
             return len(self.input_list[0])
@@ -130,11 +133,20 @@ class CalculatorLogic:
             self.display = False
             if self.window.result_variable.get() != 'ERROR':
                 if self.history_top == '':
-                    self.window.side_frame.scrollable_frame.AddHistory(self.window.result_variable.get(),self.upper.get())
+                    self.window.side_frame.scrollable_frame_history.AddElement(self.window.result_variable.get(),self.upper.get())
                 else:
-                    self.window.side_frame.scrollable_frame.AddHistory(self.window.result_variable.get(), self.history_top)
+                    self.window.side_frame.scrollable_frame_history.AddElement(self.window.result_variable.get(), self.history_top)
 
             self.history_top = ''
+
+    def MemoryClick(self, number):
+        print(number)
+        
+    def InButtonMemory(self,operator, number):
+        print(f'operator: {operator}, number: {number}')
+
+    def Memory(self,result):
+        print(result)
 
     def History(self, top,result):
         self.Reset()
