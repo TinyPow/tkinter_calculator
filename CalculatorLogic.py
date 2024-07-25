@@ -17,13 +17,19 @@ class CalculatorLogic:
         self.modifierFirst1 = ''
         self.modifierFirst2 = ''
 
+        self.display = False
+        self.history_top = ''
+
         self.state = 0
         self.dot = False
-        self.maxLen = 15
+        self.maxLen = 8
         self.upper = self.window.upper_varaible
     
     def TotalLen(self):
-        return len(self.input_list[0]) + len(self.input_list[1]) + 2
+        if self.state == 0:
+            return len(self.input_list[0])
+        else:
+            return len(self.input_list[2])
 
     def Input(self,text):
         if text == ',':
@@ -53,8 +59,17 @@ class CalculatorLogic:
                 self.dot = True
 
         elif self.IsOperator(text) and (self.state == 0 or self.state == 'END' or self.state == 2):
-            if (self.state == 2):
+            if self.state == 'ERROR':
+                self.Reset()
+                return
+            if (self.state == 2): 
+                if self.input_list[2][len(self.input_list[2]) - 1] == '.':
+                    self.input_list[2].pop()
                 self.Calculate()
+                self.display = True
+
+            if self.input_list[0][len(self.input_list[0]) - 1] == '.':
+                self.input_list[0].pop()
 
             self.dot = False
             self.input_list[1] = text
@@ -64,7 +79,10 @@ class CalculatorLogic:
             self.Delete()
         
         elif text == '=' and self.state == 2:
+            if self.input_list[2][len(self.input_list[2]) - 1] == '.':
+                self.input_list[2].pop()
             self.Calculate()
+            self.display = True
 
         
         elif text == '+/-':
@@ -108,6 +126,33 @@ class CalculatorLogic:
         self.UpdateTop()
         self.UpdateText()
 
+        if self.display:
+            self.display = False
+            if self.window.result_variable.get() != 'ERROR':
+                if self.history_top == '':
+                    self.window.side_frame.AddHistory(self.window.result_variable.get(),self.upper.get())
+                else:
+                    self.window.side_frame.AddHistory(self.window.result_variable.get(), self.history_top)
+
+            self.history_top = ''
+
+    def History(self, top,result):
+        self.Reset()
+        self.upper.set(top)
+        self.window.result_variable.set(result)
+        self.state = 'END'
+        
+        result = float(result)
+        if result < 0:
+            self.sign[0] = '-'
+            result = abs(result)
+            
+        if int(result) == float(result):
+            result = int(result)
+        
+        self.input_list = [[],'',[]]
+        self.input_list[0].append(f'{result}')
+
     def Reset2(self):
         self.previous_state = self.state
         self.modifier2 = []
@@ -146,8 +191,8 @@ class CalculatorLogic:
             return False
         
     def Modifier(self, input, index):
-        if len(self.modifier1) + len(self.modifier2) > 10:
-            self.state == "ERROR"
+        if (len(self.modifier1) > 5 and self.state == 0) or (len(self.modifier2) > 5 and self.state == 2):
+            self.state = "ERROR"
             return 'ERROR'  
 
         self.history = self.input_list.copy()
@@ -190,7 +235,7 @@ class CalculatorLogic:
                 self.modifierVar2 = True
 
             self.modifier = True
-            term = round(term,5)
+            term = round(term,4)
             if int(term) == float(term):
                 term = int(term)
 
@@ -237,7 +282,17 @@ class CalculatorLogic:
             elif(self.modifierVar2):
                 self.upper.set(f'{self.history_sign[0]}{history1} {self.history[1]} {self.ModifierParse(self.modifier2, self.modifierFirst2)} =')
             else:
-                self.upper.set(f'{self.history_sign[0]}{history1} {self.history[1]} {self.history_sign[0]}{history2} =')   
+                self.upper.set(f'{self.history_sign[0]}{history1} {self.history[1]} {self.history_sign[0]}{history2} =')  
+
+        if self.display and self.state != 'END':
+            if (self.modifierVar1 and self.modifierVar2):
+                self.history_top = f'{self.ModifierParse(self.modifier1,self.modifierFirst1)} {self.history[1]} {self.ModifierParse(self.modifier2, self.modifierFirst2)} ='
+            elif(self.modifierVar1):
+                self.history_top = f'{self.ModifierParse(self.modifier1,self.modifierFirst1)} {self.history[1]} {self.history_sign[0]}{history2} ='
+            elif(self.modifierVar2):
+                self.history_top = f'{self.history_sign[0]}{history1} {self.history[1]} {self.ModifierParse(self.modifier2, self.modifierFirst2)} ='
+            else:
+                self.history_top = f'{self.history_sign[0]}{history1} {self.history[1]} {self.history_sign[0]}{history2} ='             
             
             self.modifier1 = []
             self.modifier2 = []
@@ -341,7 +396,7 @@ class CalculatorLogic:
                     result = float(term1 / term2)
         
         if result != "ERROR":
-            result = round(result,5)
+            result = round(result,4)
             if result < 0:
                 self.sign[0] = '-'
                 result = abs(result)

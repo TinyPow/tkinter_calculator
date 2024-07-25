@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from tkinter import ttk
 from MainCalculator import CalculatorFrame
 from CurrencyConverter import ConverterFrame
 from SideBar import SideBar
@@ -8,7 +9,7 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.geometry('500x700')
+        self.geometry('800x700')
         self.title('Calculator')
         self.iconbitmap('Calculator.ico')
         self.minsize(width= 250, height= 400)

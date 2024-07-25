@@ -15,6 +15,8 @@ class CalculatorFrame(ctk.CTkFrame):
         self.main_frame = MainFrame(self,parent, self.logic, self.result_variable, self.upper_varaible)
         self.main_frame.pack(expand = True, fill = 'both')
 
+        self.side_frame = SideFrame(self,self.logic)
+
         self.bind('<Configure>', self.Check_size)
                 
         self.pack(expand = True, fill = 'both')
@@ -35,15 +37,63 @@ class CalculatorFrame(ctk.CTkFrame):
 
     def Expanded_config(self):
         self.main_frame.pack_forget()
-        self.side_frame = SideFrame(self,self.logic)
         self.main_frame.pack(side = 'left',expand = True, fill = 'both')
-        self.side_frame.pack(side = 'left',expand = True, fill = 'both')
+        self.side_frame.pack(side = 'left', fill = 'both')
         self.size = 1
 
-class SideFrame(ctk.CTkFrame):
+class SideFrame(ctk.CTkTabview):
     def __init__(self,parent,logic):
-        super().__init__(parent)
-        ctk.CTkLabel(self,text = 'PROVA', font = ('Arial', 50)).pack(expand = True, fill = 'both')
+        super().__init__(parent, width = 280)
+        
+        self.logic = logic
+        self.tab_history = self.add('History')
+        self.tab_memory = self.add('Memory')
+        self.first = True
+        self.base_label = ctk.CTkLabel(self.tab_history, text = 'No history yet')
+        self.base_label.pack()
+
+    def AddHistory(self, result, top):
+        if self.first:
+            self.base_label.pack_forget()
+            self.first = False
+        HistoryButton(self.tab_history,result,top,self.logic).pack(fill = 'x')
+
+class HistoryButton(ctk.CTkButton):
+    def __init__(self,parent,result,top,logic):
+        super().__init__(
+            parent,
+            text = f'{top}\n{result}',
+            text_color = '#878787', 
+            font = ('Arial', 30),
+            fg_color = 'transparent',
+            anchor = 'e',
+            command= lambda: logic.History(top,result),
+            height = 90,
+            width = 260)
+        
+        self.configure(text = f'{self.WrapLines(top, 260)}\n{result}')
+    
+    def WrapLines(self, top, width):
+        lines = []
+        line = ''
+        top_divided = []
+        temp = ''
+        for char in top:
+            temp += char
+            if char == '(' or char == '+' or char == '-' or char == '/' or char == 'x':
+                top_divided.append(temp)
+                temp = ''
+        top_divided.append(temp)
+
+        for word in top_divided:
+            if ctk.CTkFont(family= 'Arial', size = 30).measure(line + word) <= width:
+                line += word 
+            else:
+                lines.append(line)
+                line = word
+        lines.append(line)
+        return '\n'.join(lines)
+
 
 class MainFrame(ctk.CTkFrame):
     def __init__(self,parent,window,logic, result_variable, upper_variable):
