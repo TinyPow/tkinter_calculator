@@ -13,10 +13,10 @@ class CalculatorFrame(ctk.CTkFrame):
 
         self.logic = CalculatorLogic(self)
 
+        self.side_frame = SideFrame(self,self.logic)
+
         self.main_frame = MainFrame(self,parent, self.logic, self.result_variable, self.upper_varaible)
         self.main_frame.pack(expand = True, fill = 'both')
-
-        self.side_frame = SideFrame(self,self.logic)
 
         self.bind('<Configure>', self.Check_size)
                 
@@ -58,8 +58,6 @@ class SideFrame(ctk.CTkTabview):
 
         self.scrollable_frame_memory = ScrollableFrame(self.tab_memory, logic, 'memory',self)
         self.scrollable_frame_memory.pack(expand = True, fill = 'both')
-        self.scrollable_frame_memory.AddElement(22,23)
-        self.scrollable_frame_memory.AddElement(24,25)
 
         self.scrollable_frame_history = ScrollableFrame(self.tab_history, logic, 'history',self)
         self.scrollable_frame_history.pack(expand = True, fill = 'both')
@@ -83,14 +81,27 @@ class ScrollableFrame(ctk.CTkScrollableFrame):
         self.base_label.pack(pady = 20)
 
     def DeleteHistory(self):
+        if self.button_list == []:
+            return
         for button in self.button_list:
             button.pack_forget()
             button.destroy()
+        self.button_list = []
         self.first = True
         self.base_label = ctk.CTkLabel(self, text = self.base_label_text, font = ('Arial',25))
         self.base_label.pack(pady = 20)
         self.delete_button.place_forget()
-
+    
+    def DestroyButton(self,button):
+        self.button_list.remove(button)
+        button.pack_forget()
+        button.destroy()
+        if self.button_list == []:
+            self.first = True
+            self.base_label = ctk.CTkLabel(self, text = self.base_label_text, font = ('Arial',25))
+            self.base_label.pack(pady = 20)
+            self.delete_button.place_forget()
+        
     def AddElement(self, result, top):
         if self.first:
             self.base_label.pack_forget()
@@ -118,14 +129,15 @@ class MemoryElementFrame(ctk.CTkFrame):
     def __init__(self,parent,result,logic):
         super().__init__(parent,height = 90,width = 260, fg_color='transparent')
 
-        self.result = result
+        self.result_variable = parent.true_parent.parent.result_variable
+        self.result_var = ctk.IntVar(value = result)
         self.placed = False
         self.parent = parent
         self.logic = logic
 
         self.result_label = ctk.CTkLabel(
             self,
-            text = f'{result}',
+            textvariable = self.result_var,
             font = ('Arial', 30),
             fg_color = 'transparent',
             anchor = 'e')
@@ -138,7 +150,7 @@ class MemoryElementFrame(ctk.CTkFrame):
             height = 30,
             fg_color = '#313131',
             hover_color = '#242424',
-            command = lambda: self.logic.InButtonMemory('MC',result))
+            command = lambda: parent.DestroyButton(self))
 
         self.mplus_button = ctk.CTkButton(
             self,
@@ -148,7 +160,7 @@ class MemoryElementFrame(ctk.CTkFrame):
             font = ('Arial', 15),
             hover_color = '#242424',
             fg_color = '#313131',
-            command = lambda: self.logic.InButtonMemory('M+',result))
+            command = self.Add)
          
         self.mminus_button = ctk.CTkButton(
             self,
@@ -158,10 +170,10 @@ class MemoryElementFrame(ctk.CTkFrame):
             hover_color = '#242424',
             font = ('Arial', 15),
             fg_color = '#313131',
-            command = lambda: self.logic.InButtonMemory('M-',result))
+            command = self.Subtract)
         
         self.result_label.place(relx = 1, y = 5, x = -20, anchor = 'ne')
-        
+
         self.widgets = [self, self.result_label, self.mc_button, self.mplus_button, self.mminus_button]
         for widget in self.widgets:
             widget.bind('<Enter>', self.HoverIn)
@@ -170,8 +182,20 @@ class MemoryElementFrame(ctk.CTkFrame):
         self.bind('<Button-1>',self.Click)
         self.result_label.bind('<Button-1>', self.Click)
 
+    def Add(self):
+        result = self.result_var.get() + float(self.result_variable.get().replace(',', '.')) 
+        if int(result) == float(result):
+            result = int(result)
+        self.result_var.set(result)
+    
+    def Subtract(self):
+        result = self.result_var.get() - float(self.result_variable.get().replace(',', '.')) 
+        if int(result) == float(result):
+            result = int(result)
+        self.result_var.set(result)
+
     def Click(self, event):
-        self.logic.MemoryClick(self.result)
+        self.logic.MemoryClick(self.result_var.get())
         self.configure(fg_color = 'transparent')
         self.after(100, self.Darken)
 
@@ -241,6 +265,7 @@ class MainFrame(ctk.CTkFrame):
     def __init__(self,parent,window,logic, result_variable, upper_variable):
         super().__init__(parent)
 
+        self.parent = parent
         self.memory_frame = MemoryFrame(self,logic)
         self.buttons_frame = ButtonsFrame(self,logic)
         self.top_frame = DisplayFrame(self,window, result_variable,upper_variable)
@@ -254,21 +279,66 @@ class MemoryFrame(ctk.CTkFrame):
         super().__init__(parent,fg_color='transparent')
         
         self.logic = logic
-        item_list = ['MC', 'MR', 'M+', 'M-', 'MS']
-        for item in item_list:
-            self.CreateButton(item)
-
-    def CreateButton(self,text):
+        self.memory = parent.parent.side_frame.scrollable_frame_memory
         button = ctk.CTkButton(
-        self,
-        text = text,
-        command = lambda: self.logic.MemoryInput(text),
-        fg_color = 'transparent',
-        hover_color= '#424242',
-        font = ('Arial', 15),
-        width = 40,
-        height = 40,)
+            self,
+            text = 'MC',
+            command = self.memory.DeleteHistory,
+            fg_color = 'transparent',
+            hover_color= '#424242',
+            font = ('Arial', 15),
+            width = 40,
+            height = 40,)
         button.pack(side = 'left',padx= 15,pady =10)
+
+        button2 = ctk.CTkButton(
+            self,
+            text = 'MR',
+            command = self.MR,
+            fg_color = 'transparent',
+            hover_color= '#424242',
+            font = ('Arial', 15),
+            width = 40,
+            height = 40,)
+        button2.pack(side = 'left',padx= 15,pady =10)
+
+        button3 = ctk.CTkButton(
+            self,
+            text = 'M+',
+            command = lambda: self.memory.button_list[len(self.memory.button_list) -1].Add(),
+            fg_color = 'transparent',
+            hover_color= '#424242',
+            font = ('Arial', 15),
+            width = 40,
+            height = 40,)
+        button3.pack(side = 'left',padx= 15,pady =10)
+
+        button4 = ctk.CTkButton(
+            self,
+            text = 'M-',
+            command = lambda: self.memory.button_list[len(self.memory.button_list) -1].Subtract(),
+            fg_color = 'transparent',
+            hover_color= '#424242',
+            font = ('Arial', 15),
+            width = 40,
+            height = 40,)
+        button4.pack(side = 'left',padx= 15,pady =10)
+
+        button5 = ctk.CTkButton(
+            self,
+            text = 'MS',
+            command = lambda: self.logic.MemoryInput('MS'),
+            fg_color = 'transparent',
+            hover_color= '#424242',
+            font = ('Arial', 15),
+            width = 40,
+            height = 40,)
+        button5.pack(side = 'left',padx= 15,pady =10)
+
+    def MR(self):
+        if self.memory.button_list == []:
+            return
+        self.logic.MemoryClick(f'{self.memory.button_list[len(self.memory.button_list) -1].result}')
 
 class TopFrame(ctk.CTkFrame):
     def __init__(self, parent):
