@@ -1,3 +1,4 @@
 __pycache__/
 test.py
 api_key.yaml
+currency_values.json

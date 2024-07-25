@@ -1,23 +1,32 @@
 import requests
 import yaml
+import os.path
+import json
 
 class ConverterLogic:
     def __init__(self, frame):
         self.frame = frame
         self.currency = dict()
 
-        try:
-            with open('api_key.yaml') as api_key_file:
-                api_key_yaml = yaml.safe_load(api_key_file)
-                api_key = api_key_yaml['api_key']
-        except FileNotFoundError:
-            print('NO api_key.yaml FILE FOUND')
-        except KeyError:
-            print('NO api_key VALUE IN YAML FILE')
-
-        api_url = f"https://api.currencybeacon.com/v1/latest?api_key={api_key}&base=USD"
-        response = requests.get(api_url)
-        values_raw = response.json()['response']['rates']
+        if(os.path.isfile('currency_values.json')):
+            with open('currency_values.json') as currency_values_json:
+                data = json.load(currency_values_json)
+                values_raw = data['response']['rates']
+        else:
+            try:
+                with open('api_key.yaml') as api_key_file:
+                    api_key_yaml = yaml.safe_load(api_key_file)
+                    api_key = api_key_yaml['api_key']
+            except FileNotFoundError:
+                print('NO api_key.yaml FILE FOUND')
+            except KeyError:
+                print('NO api_key VALUE IN YAML FILE')
+            api_url = f"https://api.currencybeacon.com/v1/latest?api_key={api_key}&base=USD"
+            response = requests.get(api_url)
+            currency_values = response.json()
+            values_raw = currency_values['response']['rates']
+            with open('currency_values.json', 'w') as currency_values_json:
+                json.dump(currency_values,currency_values_json)
 
         self.currency_symble = {
             'USA - Dollar' : 'USD', 
@@ -42,8 +51,6 @@ class ConverterLogic:
         
         for key,element in self.currency_symble.items():
             self.currency.update({key:values_raw[element]})
-
-        print(self.currency)
 
         self.currency_names = []
 
