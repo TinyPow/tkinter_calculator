@@ -294,7 +294,7 @@ class MemoryFrame(ctk.CTkFrame):
         button2 = ctk.CTkButton(
             self,
             text = 'MR',
-            command = self.MR,
+            command = lambda: self.M('MR'),
             fg_color = 'transparent',
             hover_color= '#424242',
             font = ('Arial', 15),
@@ -305,7 +305,7 @@ class MemoryFrame(ctk.CTkFrame):
         button3 = ctk.CTkButton(
             self,
             text = 'M+',
-            command = lambda: self.memory.button_list[len(self.memory.button_list) -1].Add(),
+            command = lambda: self.M('M+'),
             fg_color = 'transparent',
             hover_color= '#424242',
             font = ('Arial', 15),
@@ -316,7 +316,7 @@ class MemoryFrame(ctk.CTkFrame):
         button4 = ctk.CTkButton(
             self,
             text = 'M-',
-            command = lambda: self.memory.button_list[len(self.memory.button_list) -1].Subtract(),
+            command = lambda: self.M('M-'),
             fg_color = 'transparent',
             hover_color= '#424242',
             font = ('Arial', 15),
@@ -335,10 +335,15 @@ class MemoryFrame(ctk.CTkFrame):
             height = 40,)
         button5.pack(side = 'left',padx= 15,pady =10)
 
-    def MR(self):
+    def M(self, type):
         if self.memory.button_list == []:
             return
-        self.logic.MemoryClick(f'{self.memory.button_list[len(self.memory.button_list) -1].result}')
+        if type == 'MR':
+            self.logic.MemoryClick(f'{self.memory.button_list[len(self.memory.button_list) -1].result}')
+        elif type == 'M+':
+            self.memory.button_list[len(self.memory.button_list) -1].Add()
+        elif type == 'M-':
+            self.memory.button_list[len(self.memory.button_list) -1].Subtract()
 
 class TopFrame(ctk.CTkFrame):
     def __init__(self, parent):
@@ -453,7 +458,6 @@ class DisplayFrame(ctk.CTkFrame):
             self.create_layout()
     
     def set_appwindow(self):
-            # NO IDEA OF HOW IT WORKS
             GWL_EXSTYLE=-20
             WS_EX_APPWINDOW=0x00040000
             WS_EX_TOOLWINDOW=0x00000080
@@ -461,7 +465,7 @@ class DisplayFrame(ctk.CTkFrame):
             style = windll.user32.GetWindowLongW(hwnd, GWL_EXSTYLE)
             style = style & ~WS_EX_TOOLWINDOW
             style = style | WS_EX_APPWINDOW
-            res = windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
+            windll.user32.SetWindowLongW(hwnd, GWL_EXSTYLE, style)
             self.window.withdraw()
             self.window.after(10, lambda:self.window.wm_deiconify())
 

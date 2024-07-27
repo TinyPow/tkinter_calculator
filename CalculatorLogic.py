@@ -104,6 +104,7 @@ class CalculatorLogic:
         elif self.IsModifier(text) and (self.state == 0 or self.state == 'END' or self.state == 2):
             if self.state == 0 or self.state == 'END':
                 result = self.Modifier(text, 0)
+                print(result)
                 self.input_list[0] = []
                 self.input_list[0].append(result)
             else:
@@ -164,7 +165,7 @@ class CalculatorLogic:
         self.window.result_variable.set(result)
         self.state = 'END'
         
-        result = float(result)
+        result = float(result.replace(',','.'))
         if result < 0:
             self.sign[0] = '-'
             result = abs(result)
@@ -220,7 +221,7 @@ class CalculatorLogic:
         self.history = self.input_list.copy()
         self.history_sign = self.sign.copy()
         oldterm = self.ParseList(self.input_list[index])
-        term = float(oldterm)
+        term = float(oldterm.replace(',','.'))
         
         if index == 2:
             index = 1
@@ -233,16 +234,28 @@ class CalculatorLogic:
                     term = 'ERROR'
                     self.state = 'ERROR'
                 else:
-                    term = 1/term
+                    try:
+                        term = 1/term
+                    except:
+                        term = 'ERROR'
+                        self.state = 'ERROR'
             case '√x':
-                if self.sign[index] == '':    
-                    term = sqrt(term)
+                if self.sign[index] == '': 
+                    try:
+                        term = sqrt(term)
+                    except:
+                        term = 'ERROR'
+                        self.state = 'ERROR'                      
                 else:
                     term = 'ERROR'
                     self.state = 'ERROR'
             case 'x²':
-                term = term ** 2
-                self.sign[index] == ''
+                try:
+                    term = term ** 2
+                    self.sign[index] == ''
+                except:
+                    term = 'ERROR'
+                    self.state = 'ERROR'  
             case '%':
                 term = term/100
         
@@ -260,6 +273,9 @@ class CalculatorLogic:
             term = round(term,4)
             if int(term) == float(term):
                 term = int(term)
+            
+            if len(str(term)) > 8:
+                term = '{:.4e}'.format(term)
 
             if self.state == 0:
                 self.modifier1.append(input)
@@ -395,8 +411,8 @@ class CalculatorLogic:
     def Calculate(self):
         self.history = self.input_list.copy()
         self.history_sign = self.sign.copy()
-        term1 = float(self.ParseList(self.input_list[0]))
-        term2 = float(self.ParseList(self.input_list[2])) 
+        term1 = float(self.ParseList(self.input_list[0]).replace(',','.'))
+        term2 = float(self.ParseList(self.input_list[2]).replace(',','.')) 
 
         if self.sign[0] == '-':
             term1 *= -1
@@ -405,18 +421,34 @@ class CalculatorLogic:
 
         match self.input_list[1]:
             case '+':
-                result = term1 + term2
+                try:
+                    result = term1 + term2
+                except:
+                    result = "ERROR"
+                    self.state = 'ERROR'
             case '-':
-                result = term1 - term2
+                try:
+                    result = term1 - term2
+                except:
+                    result = "ERROR"
+                    self.state = 'ERROR'
             case 'x':
-                result = term1 * term2
+                try:
+                    result = term1 * term2
+                except:
+                    result = "ERROR"
+                    self.state = 'ERROR'
             case '/':
                 if term2 == 0:
                     result = "ERROR"
                     self.state = 'ERROR'
                 else:
-                    result = float(term1 / term2)
-        
+                    try:
+                        result = float(term1 / term2)
+                    except:
+                        result = "ERROR"
+                        self.state = 'ERROR'
+
         if result != "ERROR":
             result = round(result,4)
             if result < 0:
@@ -425,6 +457,9 @@ class CalculatorLogic:
             
             if int(result) == float(result):
                 result = int(result)
+                 
+            if len(str(result)) > 8:
+                result = '{:.4e}'.format(result)
             
             self.state = 'END'
 

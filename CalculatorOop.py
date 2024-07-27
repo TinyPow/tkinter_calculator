@@ -1,5 +1,4 @@
 import customtkinter as ctk
-from tkinter import ttk
 from MainCalculator import CalculatorFrame
 from CurrencyConverter import ConverterFrame
 from SideBar import SideBar

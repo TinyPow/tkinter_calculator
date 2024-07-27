@@ -1,10 +1,34 @@
 import requests
-import yaml
 import os.path
 import json
 import datetime
 
 class ConverterLogic:
+
+    def ApiCall(self):
+        api_url = f"https://open.er-api.com/v6/latest/USD"
+        try:
+            response = requests.get(api_url)
+            data = response.json()
+        except:
+            with open('currency_values_notupdated.json') as currency_values_notupdated:
+                data = json.load(currency_values_notupdated)
+                self.values_raw = data
+                self.raw_date = 'CURRENCY VALUES NOT UPDATED'
+            return
+
+        if data['result'] == 'success':
+            data.update({"date_time":str(datetime.datetime.now())})
+            self.values_raw = data['rates']
+            self.raw_date = data['time_last_update_utc']
+            with open('currency_values.json', 'w') as currency_values_json:
+                json.dump(data,currency_values_json)
+        else:
+            with open('currency_values_notupdated.json') as currency_values_notupdated:
+                data = json.load(currency_values_notupdated)
+                self.values_raw = data
+                self.raw_date = 'CURRENCY VALUES NOT UPDATED'
+
     def __init__(self, frame):
         self.frame = frame
         self.currency = dict()
@@ -13,24 +37,13 @@ class ConverterLogic:
         if(os.path.isfile('currency_values.json')):
             with open('currency_values.json') as currency_values_json:
                 data = json.load(currency_values_json)
-                values_raw = data['response']['rates']
-                self.raw_date = data['response']['date']
+                if (datetime.datetime.strptime(data['date_time'], '%Y-%m-%d %H:%M:%S.%f') + datetime.timedelta(days = 1, minutes = 30)) < datetime.datetime.now():
+                    self.ApiCall()
+                else:
+                    self.values_raw = data['rates']
+                    self.raw_date = data['time_last_update_utc']
         else:
-            try:
-                with open('api_key.yaml') as api_key_file:
-                    api_key_yaml = yaml.safe_load(api_key_file)
-                    api_key = api_key_yaml['api_key']
-            except FileNotFoundError:
-                print('NO api_key.yaml FILE FOUND')
-            except KeyError:
-                print('NO api_key VALUE IN YAML FILE')
-            api_url = f"https://api.currencybeacon.com/v1/latest?api_key={api_key}&base=USD"
-            response = requests.get(api_url)
-            currency_values = response.json()
-            values_raw = currency_values['response']['rates']
-            self.raw_date = currency_values['response']['date']
-            with open('currency_values.json', 'w') as currency_values_json:
-                json.dump(currency_values,currency_values_json)
+            self.ApiCall()
 
         self.frame.start_date = self.UpdateRawDate(self.raw_date)
 
@@ -56,7 +69,7 @@ class ConverterLogic:
             'Brazil - Real' : 'BRL' }
         
         for key,element in self.currency_symble.items():
-            self.currency.update({key:values_raw[element]})
+            self.currency.update({key:self.values_raw[element]})
 
         self.currency_names = []
 
@@ -75,54 +88,16 @@ class ConverterLogic:
         self.comma = False
 
     def UpdateRawDate(self,date):
-        year = int(date[0:4])
-        month = int(date[5:7])
-        day = int(date[8:10])
-        hour = int(date[11:13])
-        minute = int(date[14:16])
-        second = int(date[17:19])
-        conv = datetime.datetime(year= year,month=month,day=day,hour=hour,minute=minute,second=second)
-        final = conv + datetime.timedelta(hours = 2)
-        fin_day = self.Add0ToDate(final.day)
-        fin_month = self.Add0ToDate(final.month)
-        fin_hour = self.Add0ToDate(final.hour)
-        fin_minute = self.Add0ToDate(final.minute)
-        fin_second = self.Add0ToDate(final.second)
-
-        return f'Updated on {fin_day}/{fin_month}/{final.year} at {fin_hour}:{fin_minute}:{fin_second}'
+        if date == 'CURRENCY VALUES NOT UPDATED':
+            return date
+        else:
+            return f'Updated on {date[:25]} UTC+0'
     
     def Add0ToDate(self,input_str):
         if len(str(input_str)) == 1:
             return f'0{input_str}'
         else:
             return input_str
-        
-    def UpdateRates(self):
-        date_var = self.frame.top_frame.last_updated_var
-        if self.api_call:
-            return
-        else:
-            self.api_call = True
-            with open('currency_values.json', 'w') as currency_values_json:
-                with open('api_key.yaml') as api_key_file:
-                        api_key_yaml = yaml.safe_load(api_key_file)
-                        api_key = api_key_yaml['api_key']
-                api_url = f"https://api.currencybeacon.com/v1/latest?api_key={api_key}&base=USD"
-                response = requests.get(api_url)
-                currency_values = response.json()
-                json.dump(currency_values,currency_values_json)
-
-            values_raw = currency_values['response']['rates']
-            raw_date = currency_values['response']['date']
-
-            date_var.set(self.UpdateRawDate(raw_date))
-            self.currency = dict()
-
-            for key,element in self.currency_symble.items():
-                self.currency.update({key:values_raw[element]})
-
-            self.UpdateRawDate(raw_date)
-            self.Update()
 
     def Input(self,text):
         if text.isdigit() and len(self.input_list) < 10:

@@ -35,17 +35,6 @@ class DisplayFrame(ctk.CTkFrame):
         self.bottom = ctk.CTkLabel(self,textvariable=bottom_variable, font=('Arial', 40), anchor='w')
         self.combo_bottom = ctk.CTkComboBox(self, values=currency_list, width = 200, variable= bottom_selected, state = 'readonly')
         self.top_frame = TopFrame(self)
-
-        self.update_exchange = ctk.CTkButton(
-            self, 
-            text = 'Update excange rates', 
-            command = parent.logic.UpdateRates,
-            width = 200,
-            height = 50,
-            fg_color= 'transparent',
-            hover_color= '#424242',
-            font = ('Arial', 18),
-            text_color= 'white')
         
         self.last_updated = ctk.CTkLabel(self, textvariable = self.last_updated_var, font = ('Arial', 12))
 
@@ -58,7 +47,6 @@ class DisplayFrame(ctk.CTkFrame):
         self.combo_top.place(x = 20, rely = 0.4, relheight = 0.1, anchor = 'nw')
         self.bottom.place(x = 20,rely= 0.525,relwidth = 1, relheight = 0.3,anchor = 'nw')
         self.combo_bottom.place(x = 20, rely = 0.8, relheight = 0.1, anchor = 'nw')   
-        self.update_exchange.place(relx = 1, rely = 1, x = -10, y = -40,anchor = 'se')
         self.last_updated.place(relx = 1, rely = 1, x =-20, y = -10, anchor = 'se')
 
 class TopFrame(ctk.CTkFrame):
