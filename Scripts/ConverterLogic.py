@@ -11,7 +11,7 @@ class ConverterLogic:
             response = requests.get(api_url)
             data = response.json()
         except:
-            with open('currency_values_notupdated.json') as currency_values_notupdated:
+            with open('Other/currency_values_notupdated.json') as currency_values_notupdated:
                 data = json.load(currency_values_notupdated)
                 self.values_raw = data
                 self.raw_date = 'CURRENCY VALUES NOT UPDATED'
@@ -21,10 +21,10 @@ class ConverterLogic:
             data.update({"date_time":str(datetime.datetime.now())})
             self.values_raw = data['rates']
             self.raw_date = data['time_last_update_utc']
-            with open('currency_values.json', 'w') as currency_values_json:
+            with open('Other/currency_values.json', 'w') as currency_values_json:
                 json.dump(data,currency_values_json)
         else:
-            with open('currency_values_notupdated.json') as currency_values_notupdated:
+            with open('Other/currency_values_notupdated.json') as currency_values_notupdated:
                 data = json.load(currency_values_notupdated)
                 self.values_raw = data
                 self.raw_date = 'CURRENCY VALUES NOT UPDATED'
@@ -34,8 +34,8 @@ class ConverterLogic:
         self.currency = dict()
         self.api_call = False
 
-        if(os.path.isfile('currency_values.json')):
-            with open('currency_values.json') as currency_values_json:
+        if(os.path.isfile('Other/currency_values.json')):
+            with open('Other/currency_values.json') as currency_values_json:
                 data = json.load(currency_values_json)
                 if (datetime.datetime.strptime(data['date_time'], '%Y-%m-%d %H:%M:%S.%f') + datetime.timedelta(days = 1, minutes = 30)) < datetime.datetime.now():
                     self.ApiCall()
@@ -144,7 +144,6 @@ class ConverterLogic:
         return f'{risultato}'
 
     def Display(self):
-        # TOP TERM
         term1 = self.ParseList(self.input_list).replace('.', ',')
         if term1 == '':
             self.top_variable.set('0')
@@ -153,8 +152,7 @@ class ConverterLogic:
         else:
             self.top_variable.set(term1)
 
-        # BOTTOM TERM
-        self.bottom_variable.set(self.risultato)
+        self.bottom_variable.set(str(self.risultato).replace('.',','))
 
     def ParseList(self,list):
         result = ''

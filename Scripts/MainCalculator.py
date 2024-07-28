@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from ctypes import windll
-from CalculatorLogic import CalculatorLogic
+from Scripts.CalculatorLogic import CalculatorLogic
 
 class CalculatorFrame(ctk.CTkFrame):
     def __init__(self, parent):
@@ -8,8 +8,8 @@ class CalculatorFrame(ctk.CTkFrame):
         
         self.parent = parent
         self.size = 0
-        self.result_variable = ctk.StringVar(value = '0')  # REFERENCED IN LOGIC 
-        self.upper_varaible = ctk.StringVar()              # REFERENCED IN LOGIC 
+        self.result_variable = ctk.StringVar(value = '0') 
+        self.upper_varaible = ctk.StringVar()              
 
         self.logic = CalculatorLogic(self)
 
@@ -130,7 +130,7 @@ class MemoryElementFrame(ctk.CTkFrame):
         super().__init__(parent,height = 90,width = 260, fg_color='transparent')
 
         self.result_variable = parent.true_parent.parent.result_variable
-        self.result_var = ctk.IntVar(value = result)
+        self.result_var = ctk.StringVar(value = result)
         self.placed = False
         self.parent = parent
         self.logic = logic
@@ -183,19 +183,21 @@ class MemoryElementFrame(ctk.CTkFrame):
         self.result_label.bind('<Button-1>', self.Click)
 
     def Add(self):
-        result = self.result_var.get() + float(self.result_variable.get().replace(',', '.')) 
+        result = float(self.result_var.get().replace(',', '.')) + float(self.result_variable.get().replace(',', '.')) 
+        result = round(result,4)
         if int(result) == float(result):
             result = int(result)
         self.result_var.set(result)
     
     def Subtract(self):
-        result = self.result_var.get() - float(self.result_variable.get().replace(',', '.')) 
+        result = float(self.result_var.get().replace(',', '.')) - float(self.result_variable.get().replace(',', '.')) 
+        result = round(result,4)
         if int(result) == float(result):
             result = int(result)
         self.result_var.set(result)
 
     def Click(self, event):
-        self.logic.MemoryClick(self.result_var.get())
+        self.logic.MemoryClick(float(self.result_var.get().replace(',','.')))
         self.configure(fg_color = 'transparent')
         self.after(100, self.Darken)
 
@@ -339,7 +341,7 @@ class MemoryFrame(ctk.CTkFrame):
         if self.memory.button_list == []:
             return
         if type == 'MR':
-            self.logic.MemoryClick(f'{self.memory.button_list[len(self.memory.button_list) -1].result}')
+            self.logic.MemoryClick(f'{self.memory.button_list[len(self.memory.button_list) -1].result_var.get()}')
         elif type == 'M+':
             self.memory.button_list[len(self.memory.button_list) -1].Add()
         elif type == 'M-':
@@ -504,7 +506,6 @@ class ButtonsFrame(ctk.CTkFrame):
 
     def create_widgets(self,logic):
         Button(self,logic,'0',1,5,'white','#636363')
-        # BUTTONS 1-9
         z = 1
         for i in range(4,1,-1):
             for e in range(3):
@@ -527,7 +528,6 @@ class ButtonsFrame(ctk.CTkFrame):
         Button(self,logic, '√x',2,1,'white','#424242')
 
     def create_layout(self):
-        # GRID LAYOUT
         self.rowconfigure((0,1,2,3,4,5), weight= 1, uniform='a')
         self.columnconfigure((0,1,2,3), weight=1, uniform='a')
 

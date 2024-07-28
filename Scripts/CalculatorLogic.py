@@ -104,7 +104,6 @@ class CalculatorLogic:
         elif self.IsModifier(text) and (self.state == 0 or self.state == 'END' or self.state == 2):
             if self.state == 0 or self.state == 'END':
                 result = self.Modifier(text, 0)
-                print(result)
                 self.input_list[0] = []
                 self.input_list[0].append(result)
             else:
@@ -138,7 +137,6 @@ class CalculatorLogic:
             self.history_top = ''
 
     def MemoryClick(self, number):
-        number = number.replace('.', ',')
         if (self.state == 0 and self.modifierVar1 == True):
                 self.Reset()
         if (self.state == 2 and self.modifierVar2 == True):
@@ -152,11 +150,11 @@ class CalculatorLogic:
             self.input_list[2] = []
             self.input_list[2].append(number)
             self.state = 2
-        self.window.result_variable.set(number)
+        self.UpdateText()
 
     def MemoryInput(self,result):
         if result == 'MS':
-            if float(self.window.result_variable.get().replace(',','.')) != 0:
+            if float(str(self.window.result_variable.get()).replace(',','.')) != 0:
                 self.window.side_frame.scrollable_frame_memory.AddElement(self.window.result_variable.get(), 0)
 
     def History(self, top,result):

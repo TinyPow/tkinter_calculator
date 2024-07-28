@@ -1,7 +1,7 @@
 import customtkinter as ctk
-from MainCalculator import CalculatorFrame
-from CurrencyConverter import ConverterFrame
-from SideBar import SideBar
+from Scripts.MainCalculator import CalculatorFrame
+from Scripts.CurrencyConverter import ConverterFrame
+from Scripts.SideBar import SideBar
 
 # APP CLASS
 class App(ctk.CTk):
@@ -10,7 +10,7 @@ class App(ctk.CTk):
 
         self.geometry('800x700')
         self.title('Calculator')
-        self.iconbitmap('Calculator.ico')
+        self.iconbitmap('Other/Calculator.ico')
         self.minsize(width= 250, height= 400)
 
         self.frame = Frame(self)   

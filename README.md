@@ -15,6 +15,7 @@ The following modules are used but come with the python standard library.
 - math
 ## Currency converter
 The app has a currency converter with exchange rates that are updated every day
+
 The api used is Exchange rate API and only allows one request per day, so if you delete the app folder and rerun the app the currency converter may not work
 ### Credits
 <a href="https://www.exchangerate-api.com">Rates By Exchange Rate API</a>

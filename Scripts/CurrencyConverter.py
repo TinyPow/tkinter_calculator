@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from ConverterLogic import ConverterLogic
+from Scripts.ConverterLogic import ConverterLogic
 
 class ConverterFrame(ctk.CTkFrame):
     def __init__(self,parent):
@@ -82,7 +82,6 @@ class ButtonsFrame(ctk.CTkFrame):
 
     def create_widgets(self,logic):
         Button(self,logic,'0',1,4,'white','#636363')
-        # BUTTONS 1-9
         z = 1
         for i in range(3,0,-1):
             for e in range(0,3):
@@ -94,7 +93,6 @@ class ButtonsFrame(ctk.CTkFrame):
         Button(self,logic, 'CE',1,0,'white','#424242')
 
     def create_layout(self):
-        # GRID LAYOUT
         self.rowconfigure((0,1,2,3,4), weight= 1, uniform='a')
         self.columnconfigure((0,1,2), weight=1, uniform='a')
 
