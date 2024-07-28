@@ -1,4 +1,4 @@
-# Python windows calculator
+# Tkinter calculator
 A calculator built in python using customtkinter.
 
 The code is 100% written by me but the design is heavily inspired on the default windows calculator so i decided to include the licence.
@@ -13,6 +13,7 @@ The following modules are used but come with the python standard library.
 - datetime
 - ctypes
 - math
+- platform
 ## Currency converter
 The app has a currency converter with exchange rates that are updated every day
 
